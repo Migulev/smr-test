@@ -18,7 +18,7 @@ export type UiSmrRowType = SmrRowType & {
   level: number;
 };
 
-export enum Mode {
+export enum ModeView {
   Viewing,
   Adding,
   Editing,
@@ -30,7 +30,7 @@ export default function Home() {
   const [data, setData] = useState<SmrRowType[]>([]);
   const [uiSmrRowList, setUiSmrRowList] = useState<UiSmrRowType[]>([]);
   const [idInEdit, setIdInEdit] = useState<string | number | null>(null);
-  const [mode, setMode] = useState<Mode>(Mode.Viewing);
+  const [mode, setMode] = useState<ModeView>(ModeView.Viewing);
 
   // fetch data //
   useEffect(() => {
@@ -55,16 +55,16 @@ export default function Home() {
   //----------------//
   const handleEscape = useCallback(() => {
     switch (mode) {
-      case Mode.Adding:
+      case ModeView.Adding:
         const newData = deleteRowInData(data, idInEdit);
         setData(newData);
         setIdInEdit(null);
-        setMode(Mode.Viewing);
+        setMode(ModeView.Viewing);
         break;
 
-      case Mode.Editing:
+      case ModeView.Editing:
         setIdInEdit(null);
-        setMode(Mode.Viewing);
+        setMode(ModeView.Viewing);
         break;
 
       default:
@@ -75,7 +75,7 @@ export default function Home() {
   //----------------//
   const handleAddNewRowForm = useCallback(
     (id: string | number | null = null) => {
-      if (mode === Mode.Viewing) {
+      if (mode === ModeView.Viewing) {
         const newRow: SmrRowType = generateNewUiRow();
 
         const newData = [...data];
@@ -83,7 +83,7 @@ export default function Home() {
 
         if (success) {
           setData(newData);
-          setMode(Mode.Adding);
+          setMode(ModeView.Adding);
         } else {
           alert('не получилось добавить ряд');
         }
@@ -94,7 +94,7 @@ export default function Home() {
 
   //----------------//
   const handleEnter = useCallback(() => {
-    if (mode === Mode.Viewing) handleAddNewRowForm();
+    if (mode === ModeView.Viewing) handleAddNewRowForm();
   }, [mode, handleAddNewRowForm]);
 
   // handle event listeners for KeyDown functions //
@@ -116,9 +116,9 @@ export default function Home() {
 
   //----------------//
   function handleEditRowForm(id: string | number | null) {
-    if (mode === Mode.Viewing) {
+    if (mode === ModeView.Viewing) {
       setIdInEdit(id);
-      setMode(Mode.Editing);
+      setMode(ModeView.Editing);
     }
   }
 
