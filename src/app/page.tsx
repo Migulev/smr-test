@@ -9,7 +9,7 @@ import {
   flattenArrayAndPrepare,
   generateNewUiRow,
 } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.scss';
 
@@ -48,31 +48,12 @@ export default function Home() {
   //prepare data to display //
   useEffect(() => {
     const uiData = flattenArrayAndPrepare(data);
-    //TODO: remove
-    console.log(uiData);
 
     setUiSmrRowList(uiData);
   }, [data]);
 
-  // handle event listeners for KeyDown functions //
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        handleEscape();
-      }
-
-      if (event.key === 'Enter') {
-        handleEnter();
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleEscape, handleEnter]);
-
   //----------------//
-  function handleEscape() {
+  const handleEscape = useCallback(() => {
     switch (mode) {
       case Mode.Adding:
         const newData = deleteRowInData(data, idInEdit);
@@ -89,29 +70,49 @@ export default function Home() {
       default:
         break;
     }
-  }
+  }, [data, idInEdit, mode]);
 
   //----------------//
-  function handleEnter() {
-    if (mode === Mode.Viewing) handleAddNewRowForm();
-  }
+  const handleAddNewRowForm = useCallback(
+    (id: string | number | null = null) => {
+      if (mode === Mode.Viewing) {
+        const newRow: SmrRowType = generateNewUiRow();
 
-  //----------------//
-  function handleAddNewRowForm(id: string | number | null = null) {
-    if (mode === Mode.Viewing) {
-      const newRow: SmrRowType = generateNewUiRow();
+        const newData = [...data];
+        const success = addRowToData(newData, id, newRow);
 
-      const newData = [...data];
-      const success = addRowToData(newData, id, newRow);
-
-      if (success) {
-        setData(newData);
-        setMode(Mode.Adding);
-      } else {
-        alert('не получилось добавить ряд');
+        if (success) {
+          setData(newData);
+          setMode(Mode.Adding);
+        } else {
+          alert('не получилось добавить ряд');
+        }
       }
-    }
-  }
+    },
+    [mode, data]
+  );
+
+  //----------------//
+  const handleEnter = useCallback(() => {
+    if (mode === Mode.Viewing) handleAddNewRowForm();
+  }, [mode, handleAddNewRowForm]);
+
+  // handle event listeners for KeyDown functions //
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleEscape();
+      } else if (event.key === 'Enter') {
+        handleEnter();
+      }
+    },
+    [handleEscape, handleEnter]
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   //----------------//
   function handleEditRowForm(id: string | number | null) {
