@@ -1,0 +1,41 @@
+.sidebar {
+  height: 100%;
+  width: 234px;
+  background-color: var(--color-gray-100);
+  color: var(--color-darkgray);
+  border-right: 1px solid var(--color-darkslategray);
+}
+
+.selection {
+  height: 44px;
+  padding: 0px 10px 0px 20px;
+  border-bottom: 1px solid var(--color-darkslategray);
+  font-size: var(--font-size-sm);
+  line-height: 16.41px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  span {
+    font-size: 10px;
+    line-height: 11.72px;
+  }
+}
+
+.menu {
+  color: white;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 10px 5px 20px;
+
+  font-size: var(--font-size-sm);
+  line-height: 16.41px;
+}
+
+.option:nth-child(5) {
+  background-color: var(--color-darkgray);
+}

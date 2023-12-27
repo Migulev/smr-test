@@ -1,0 +1,62 @@
+:root {
+  /* fonts */
+  --font-roboto: Roboto;
+
+  /* font sizes */
+  --font-size-sm: 14px;
+
+  /* Colors */
+  --color-gray-100: #27272a;
+  --color-gray-200: #202124;
+  --color-silver: #c6c6c6;
+  --color-white: #fff;
+  --color-darkslategray: #414144;
+  --color-darkgray: #a1a1aa;
+  --color-lightgray: #d3d3d3;
+
+  /* Paddings */
+  --padding-xs: 12px;
+  --padding-md: 20px;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.flex {
+  display: flex;
+}
+
+.align-center {
+  align-items: center;
+}
