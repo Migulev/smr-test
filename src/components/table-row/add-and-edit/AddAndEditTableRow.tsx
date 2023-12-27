@@ -1,4 +1,4 @@
-import { ModeView } from '@/app/page';
+import { Mode } from '@/app/page.types';
 import { Icons } from '@/components/Icons';
 import { createRow, updateRow } from '@/crud/smr';
 import { SmrRowType } from '@/crud/smr.types';
@@ -17,8 +17,8 @@ type Props = {
   parentId: number | null;
   data: SmrRowType[];
   setData: Dispatch<SetStateAction<SmrRowType[]>>;
-  mode: ModeView;
-  setMode: Dispatch<SetStateAction<ModeView>>;
+  mode: Mode;
+  setMode: Dispatch<SetStateAction<Mode>>;
   setIdInEdit: Dispatch<SetStateAction<string | number | null>>;
 };
 
@@ -43,7 +43,7 @@ function AddAndEditTableRow(props: Props) {
   //----------------//
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Enter') {
-      if (props.mode === ModeView.Editing || ModeView.Adding) {
+      if (props.mode === Mode.Editing || Mode.Adding) {
         SubmitRow();
       }
     }
@@ -75,7 +75,7 @@ function AddAndEditTableRow(props: Props) {
       const newData = updateRowInData(props.data, props.id, { ...rowValue });
       props.setData(newData);
       props.setIdInEdit(null);
-      props.setMode(ModeView.Viewing);
+      props.setMode(Mode.Viewing);
     } else {
       alert('форма не заполнена');
     }

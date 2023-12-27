@@ -12,17 +12,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.scss';
-
-export type UiSmrRowType = SmrRowType & {
-  parentId: number | null;
-  level: number;
-};
-
-export enum ModeView {
-  Viewing,
-  Adding,
-  Editing,
-}
+import { Mode, UiSmrRowType } from './page.types';
 
 //TODO: resolve Errors and reload page
 
@@ -30,7 +20,7 @@ export default function Home() {
   const [data, setData] = useState<SmrRowType[]>([]);
   const [uiSmrRowList, setUiSmrRowList] = useState<UiSmrRowType[]>([]);
   const [idInEdit, setIdInEdit] = useState<string | number | null>(null);
-  const [mode, setMode] = useState<ModeView>(ModeView.Viewing);
+  const [mode, setMode] = useState<Mode>(Mode.Viewing);
 
   // fetch data //
   useEffect(() => {
@@ -55,16 +45,16 @@ export default function Home() {
   //----------------//
   const handleEscape = useCallback(() => {
     switch (mode) {
-      case ModeView.Adding:
+      case Mode.Adding:
         const newData = deleteRowInData(data, idInEdit);
         setData(newData);
         setIdInEdit(null);
-        setMode(ModeView.Viewing);
+        setMode(Mode.Viewing);
         break;
 
-      case ModeView.Editing:
+      case Mode.Editing:
         setIdInEdit(null);
-        setMode(ModeView.Viewing);
+        setMode(Mode.Viewing);
         break;
 
       default:
@@ -75,7 +65,7 @@ export default function Home() {
   //----------------//
   const handleAddNewRowForm = useCallback(
     (id: string | number | null = null) => {
-      if (mode === ModeView.Viewing) {
+      if (mode === Mode.Viewing) {
         const newRow: SmrRowType = generateNewUiRow();
 
         const newData = [...data];
@@ -83,7 +73,7 @@ export default function Home() {
 
         if (success) {
           setData(newData);
-          setMode(ModeView.Adding);
+          setMode(Mode.Adding);
         } else {
           alert('не получилось добавить ряд');
         }
@@ -94,7 +84,7 @@ export default function Home() {
 
   //----------------//
   const handleEnter = useCallback(() => {
-    if (mode === ModeView.Viewing) handleAddNewRowForm();
+    if (mode === Mode.Viewing) handleAddNewRowForm();
   }, [mode, handleAddNewRowForm]);
 
   // handle event listeners for KeyDown functions //
@@ -116,9 +106,9 @@ export default function Home() {
 
   //----------------//
   function handleEditRowForm(id: string | number | null) {
-    if (mode === ModeView.Viewing) {
+    if (mode === Mode.Viewing) {
       setIdInEdit(id);
-      setMode(ModeView.Editing);
+      setMode(Mode.Editing);
     }
   }
 
