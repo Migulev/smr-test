@@ -1,11 +1,12 @@
 import { Mode } from '@/app/page.types';
-import { Icons } from '@/components/Icons';
 import { createRow, updateRow } from '@/crud/smr';
 import { SmrRowType } from '@/crud/smr.types';
 import { updateRowInData } from '@/lib/utils';
 import { SmrRowSchema } from '@/lib/zod';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
+
+type ValueType = z.infer<typeof SmrRowSchema>;
 
 type Props = {
   id: number | string | null;
@@ -20,9 +21,9 @@ type Props = {
   mode: Mode;
   setMode: Dispatch<SetStateAction<Mode>>;
   setIdInEdit: Dispatch<SetStateAction<string | number | null>>;
+  foldersView: any;
+  onCreated: (id: any) => void; // `TODO: reload item state'
 };
-
-type ValueType = z.infer<typeof SmrRowSchema>;
 
 //****************//
 function AddAndEditTableRow(props: Props) {
@@ -69,9 +70,6 @@ function AddAndEditTableRow(props: Props) {
         }
       }
 
-      //TODO: optimistic request
-
-      //TODO: if id === null it needs to await response with an id and then change it
       const newData = updateRowInData(props.data, props.id, { ...rowValue });
       props.setData(newData);
       props.setIdInEdit(null);
@@ -83,9 +81,7 @@ function AddAndEditTableRow(props: Props) {
 
   return (
     <tr onKeyDown={handleKeyDown}>
-      <td>
-        <Icons.levelIcon />
-      </td>
+      <td>{props.foldersView}</td>
       <td>
         <input
           ref={refInput}

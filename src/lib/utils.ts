@@ -22,36 +22,38 @@ export function generateNewUiRow(): SmrRowType {
 export function flattenArrayAndPrepare(
   objects: any,
   parentId = null,
-  level = 0
+  foldersClosed: any
 ) {
-  // Array to accumulate the flattened objects
   let result: any[] = [];
 
-  // Recursive function to handle the flattening
-  function recurse(children: any[], parentId: any, level: number) {
-    // Iterate over each child object
-    children.forEach((child: any) => {
-      //
-      // Prepare for UI
-      //
+  function recurse(
+    objectsArray: object[],
+    parentId: number | string | null,
+    level: number,
+    states: boolean[]
+  ) {
+    objectsArray.forEach((element: any, index: number) => {
+      const isNotLastElement = index < objectsArray.length - 1;
+
+      let newStates = level === 1 ? [] : [...states, isNotLastElement];
+
       result.push({
-        ...child,
-        // child: undefined, // Remove the children property
-        parentId: parentId, // Add parentId property
-        level: level, // Add level property
+        ...element,
+        parentId,
+        level,
+        states: newStates,
+        open: !foldersClosed[element.id],
+        hasChildren: element.child.length > 0,
       });
 
-      // If this child has its own children, recurse into them with incremented level and current child's id as parentId
-      if (Array.isArray(child.child)) {
-        recurse(child.child, child.id, level + 1);
+      if (!foldersClosed[element.id] && Array.isArray(element.child)) {
+        recurse(element.child, element.id, level + 1, newStates);
       }
     });
   }
 
-  // Start processing the initial array of objects
-  recurse(objects, parentId, level);
+  recurse(objects, parentId, 1, []);
 
-  // Return the flat list of objects
   return result;
 }
 

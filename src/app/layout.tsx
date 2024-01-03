@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <section className={styles.table}>
+        <section className={styles.app}>
           <Topbar />
           <main className={styles.main}>
             <Sidebar />

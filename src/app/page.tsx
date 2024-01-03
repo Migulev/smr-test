@@ -1,7 +1,11 @@
 'use client';
 
-import { AddAndEditTableRow, DisplayTableRow } from '@/components/table-row';
-import { getAllSmrRows } from '@/crud/smr';
+import {
+  AddAndEditTableRow,
+  DisplayTableRow,
+  FolderCell,
+} from '@/components/table-row';
+import { deleteRow, getAllSmrRows } from '@/crud/smr';
 import { SmrRowType } from '@/crud/smr.types';
 import {
   addRowToData,
@@ -9,16 +13,22 @@ import {
   flattenArrayAndPrepare,
   generateNewUiRow,
 } from '@/lib/utils';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.scss';
-import { Mode, UiSmrRowType } from './page.types';
+import { Mode } from './page.types';
 
+//TODO: display EDIT FORM while no data
+//TODO: connect lines with the parent of a NEW EDIT Form
 //TODO: resolve Errors and reload page
+//TODO: if id === null it needs to await response with an id and then change it
+//TODO: optimistic request
+//TODO: Vercel https error
+//TODO: screen size
 
 export default function Home() {
   const [data, setData] = useState<SmrRowType[]>([]);
-  const [uiSmrRowList, setUiSmrRowList] = useState<UiSmrRowType[]>([]);
+  const [foldersClosed, setFoldersClosed] = useState<any>({});
   const [idInEdit, setIdInEdit] = useState<string | number | null>(null);
   const [mode, setMode] = useState<Mode>(Mode.Viewing);
 
@@ -36,11 +46,10 @@ export default function Home() {
   }, []);
 
   //prepare data to display //
-  useEffect(() => {
-    const uiData = flattenArrayAndPrepare(data);
-
-    setUiSmrRowList(uiData);
-  }, [data]);
+  const uiSmrRowList = useMemo(() => {
+    // return flattenArrayAndPrepare(data, null);
+    return flattenArrayAndPrepare(data, null, foldersClosed);
+  }, [data, foldersClosed]);
 
   //----------------//
   const handleEscape = useCallback(() => {
@@ -87,7 +96,7 @@ export default function Home() {
     if (mode === Mode.Viewing) handleAddNewRowForm();
   }, [mode, handleAddNewRowForm]);
 
-  // handle event listeners for KeyDown functions //
+  //----------------//
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -99,6 +108,7 @@ export default function Home() {
     [handleEscape, handleEnter]
   );
 
+  // handle event listeners for KeyDown functions //
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
@@ -110,6 +120,22 @@ export default function Home() {
       setIdInEdit(id);
       setMode(Mode.Editing);
     }
+  }
+
+  async function handleDeleteRow(id: any) {
+    try {
+      const newData = deleteRowInData(data, id);
+      setData(newData);
+      await deleteRow(id);
+    } catch {
+      alert('Произошла ошибка! Изменения не сохранены');
+      window.location.reload();
+    }
+  }
+
+  async function handleClose(id: any) {
+    const newState = foldersClosed[id] ? !foldersClosed[id] : true;
+    setFoldersClosed({ ...foldersClosed, [id]: newState });
   }
 
   return (
@@ -131,27 +157,34 @@ export default function Home() {
           </thead>
           <tbody>
             {uiSmrRowList.map((row) => {
-              if (idInEdit === row.id) {
-                return (
-                  <AddAndEditTableRow
-                    key={uuidv4()}
-                    mode={mode}
-                    setMode={setMode}
-                    setIdInEdit={setIdInEdit}
-                    data={data}
-                    setData={setData}
-                    {...row}
-                  />
-                );
-              }
-              return (
-                <DisplayTableRow
-                  key={row.id}
-                  handleDoubleClick={() => handleEditRowForm(row.id)}
-                  handleClick={() => handleAddNewRowForm(row.id)}
+              let folderView = (
+                <FolderCell
+                  {...row}
+                  edit={idInEdit === row.id}
+                  onAdd={() => handleAddNewRowForm(row.id)}
+                  onDelete={() => handleDeleteRow(row.id)}
+                  onClose={() => handleClose(row.id)}
+                />
+              );
+
+              return idInEdit === row.id ? (
+                <AddAndEditTableRow
+                  key={uuidv4()}
+                  mode={mode}
+                  setMode={setMode}
+                  setIdInEdit={setIdInEdit}
                   data={data}
                   setData={setData}
+                  foldersView={folderView}
+                  onCreated={(id: any) => {}}
                   {...row}
+                />
+              ) : (
+                <DisplayTableRow
+                  key={row.id ?? uuidv4()}
+                  foldersView={folderView}
+                  {...row}
+                  onEdit={() => handleEditRowForm(row.id)}
                 />
               );
             })}
