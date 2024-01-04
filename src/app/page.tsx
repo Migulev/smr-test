@@ -5,8 +5,8 @@ import {
   DisplayTableRow,
   FolderCell,
 } from '@/components/table-row';
-import { deleteRow, getAllSmrRows } from '@/crud/smr';
-import { SmrRowType } from '@/crud/smr.types';
+import { deleteRow, getAllSmrRows } from '@/api/smr';
+import { SmrRowType } from '@/api/smr.types';
 import {
   addRowToData,
   deleteRowInData,
@@ -18,6 +18,8 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.scss';
 import { Mode } from './page.types';
 
+//TODO: folder
+//TODO: naming check and change
 //TODO: display EDIT FORM while no data
 //TODO: resolve Errors and reload page
 //TODO: if id === null it needs to await response with an id and then change it
@@ -26,9 +28,9 @@ import { Mode } from './page.types';
 
 export default function Home() {
   const [data, setData] = useState<SmrRowType[]>([]);
-  const [foldersClosed, setFoldersClosed] = useState<any>({});
   const [idInEdit, setIdInEdit] = useState<string | number | null>(null);
   const [mode, setMode] = useState<Mode>(Mode.Viewing);
+  const [foldersClosed, setFoldersClosed] = useState<any>({});
 
   // fetch data //
   useEffect(() => {
@@ -45,7 +47,6 @@ export default function Home() {
 
   //prepare data to display //
   const uiSmrRowList = useMemo(() => {
-    // return flattenArrayAndPrepare(data, null);
     return flattenArrayAndPrepare(data, null, foldersClosed);
   }, [data, foldersClosed]);
 
@@ -120,6 +121,7 @@ export default function Home() {
     }
   }
 
+  //TODO:
   async function handleDeleteRow(id: any) {
     try {
       const newData = deleteRowInData(data, id);

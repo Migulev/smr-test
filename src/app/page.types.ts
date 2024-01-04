@@ -1,4 +1,4 @@
-import { SmrRowType } from '@/crud/smr.types';
+import { SmrRowType } from '@/api/smr.types';
 
 export type UiSmrRowType = SmrRowType & {
   parentId: number | null;

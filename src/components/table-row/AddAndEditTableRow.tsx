@@ -1,6 +1,6 @@
 import { Mode } from '@/app/page.types';
-import { createRow, updateRow } from '@/crud/smr';
-import { SmrRowType } from '@/crud/smr.types';
+import { createRow, updateRow } from '@/api/smr';
+import { SmrRowType } from '@/api/smr.types';
 import { updateRowInData } from '@/lib/utils';
 import { SmrRowSchema } from '@/lib/zod';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';

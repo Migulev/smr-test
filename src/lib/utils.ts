@@ -1,4 +1,4 @@
-import { SmrRowType } from '@/crud/smr.types';
+import { SmrRowType } from '@/api/smr.types';
 import { v4 as uuidv4 } from 'uuid';
 
 export function generateNewUiRow(): SmrRowType {
@@ -32,22 +32,22 @@ export function flattenArrayAndPrepare(
     level: number,
     states: boolean[]
   ) {
-    objectsArray.forEach((element: any, index: number) => {
+    objectsArray.forEach((obj: any, index: number) => {
       const isNotLastElement = index < objectsArray.length - 1;
 
       let newStates = level === 1 ? [] : [...states, isNotLastElement];
 
       result.push({
-        ...element,
+        ...obj,
         parentId,
         level,
         states: newStates,
-        open: !foldersClosed[element.id],
-        hasChildren: element.child.length > 0,
+        open: !foldersClosed[obj.id],
+        hasChildren: obj.child.length > 0,
       });
 
-      if (!foldersClosed[element.id] && Array.isArray(element.child)) {
-        recurse(element.child, element.id, level + 1, newStates);
+      if (!foldersClosed[obj.id] && Array.isArray(obj.child)) {
+        recurse(obj.child, obj.id, level + 1, newStates);
       }
     });
   }
@@ -59,22 +59,22 @@ export function flattenArrayAndPrepare(
 
 export function addRowToData(
   data: SmrRowType[],
-  id: string | number | null,
+  parentId: string | number | null,
   newRow: SmrRowType
 ): boolean {
-  if (id === null) {
+  if (parentId === null) {
     data.push(newRow);
     return true;
   }
 
   for (const obj of data) {
-    if (obj.id === id) {
+    if (obj.id === parentId) {
       obj.child.push(newRow);
       return true; // Parent found and child added
     }
 
     // Recursively search in children
-    if (addRowToData(obj.child, id, newRow)) {
+    if (addRowToData(obj.child, parentId, newRow)) {
       return true; // Parent was found in children
     }
   }
