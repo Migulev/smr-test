@@ -19,7 +19,6 @@ import styles from './page.module.scss';
 import { Mode } from './page.types';
 
 //TODO: display EDIT FORM while no data
-//TODO: connect lines with the parent of a NEW EDIT Form
 //TODO: resolve Errors and reload page
 //TODO: if id === null it needs to await response with an id and then change it
 //TODO: optimistic request

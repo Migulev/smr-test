@@ -1,5 +1,5 @@
 .home {
-  height: 100%;
+  min-height: 100vh;
   width: 100%;
 
   background-color: var(--color-gray-200);
@@ -8,7 +8,6 @@
 .header {
   display: block;
   height: 44px;
-  width: 100%;
 
   background-color: var(--color-gray-100);
   border-bottom: 1px solid var(--color-darkslategray);
@@ -30,7 +29,7 @@
 
 .tableWrapper {
   width: 100%;
-  height: calc(100% - 44px);
+  min-height: calc(100% - 44px);
   padding: 10px;
 }
 
