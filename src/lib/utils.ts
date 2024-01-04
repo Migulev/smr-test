@@ -1,7 +1,7 @@
-import { SmrRowType } from '@/api/smr.types';
+import { SmrRowAPIRequest } from '@/api/smr.types';
 import { v4 as uuidv4 } from 'uuid';
 
-export function generateNewUiRow(): SmrRowType {
+export function generateNewRow(): SmrRowAPIRequest {
   return {
     child: [],
     equipmentCosts: 0,
@@ -53,9 +53,9 @@ export function flattenArrayAndPrepare(objects: any, parentId = null) {
 }
 
 export function addRowToData(
-  data: SmrRowType[],
+  data: SmrRowAPIRequest[],
   parentId: string | number | null,
-  newRow: SmrRowType
+  newRow: SmrRowAPIRequest
 ): boolean {
   if (parentId === null) {
     data.push(newRow);
@@ -78,9 +78,9 @@ export function addRowToData(
 }
 
 export const deleteRowInData = (
-  data: SmrRowType[],
+  data: SmrRowAPIRequest[],
   id: string | number | null
-): SmrRowType[] => {
+): SmrRowAPIRequest[] => {
   return data.filter((obj) => {
     if (obj.id === id) {
       return false; // Do not include this item in the new array
@@ -96,10 +96,10 @@ export const deleteRowInData = (
 };
 
 export const updateRowInData = (
-  data: SmrRowType[],
+  data: SmrRowAPIRequest[],
   id: number | string | null,
-  updates: Partial<SmrRowType>
-): SmrRowType[] => {
+  updates: Partial<SmrRowAPIRequest>
+): SmrRowAPIRequest[] => {
   // Use map to create a new array
   return data.map((obj) => {
     if (obj.id === id) {

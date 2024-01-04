@@ -5,13 +5,13 @@ import {
   DisplayTableRow,
   FolderCell,
 } from '@/components/table-row';
-import { deleteRow, getAllSmrRows } from '@/api/smr';
-import { SmrRowType } from '@/api/smr.types';
+import { deleteRowAPI, getAllSmrRowsAPI } from '@/api/smr';
+import { SmrRowAPIRequest } from '@/api/smr.types';
 import {
   addRowToData,
   deleteRowInData,
   flattenArrayAndPrepare,
-  generateNewUiRow,
+  generateNewRow,
 } from '@/lib/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,7 +27,7 @@ import { Mode } from './page.types';
 //TODO: Vercel https error
 
 export default function Home() {
-  const [data, setData] = useState<SmrRowType[]>([]);
+  const [data, setData] = useState<SmrRowAPIRequest[]>([]);
   const [idInEdit, setIdInEdit] = useState<string | number | null>(null);
   const [mode, setMode] = useState<Mode>(Mode.Viewing);
 
@@ -35,7 +35,7 @@ export default function Home() {
   useEffect(() => {
     async function getUiSmrRowList() {
       try {
-        const data: SmrRowType[] = await getAllSmrRows();
+        const data: SmrRowAPIRequest[] = await getAllSmrRowsAPI();
         setData(data);
       } catch (error) {
         console.error('Failed to fetch rows:', error);
@@ -73,7 +73,7 @@ export default function Home() {
   const handleAddNewRowForm = useCallback(
     (id: string | number | null = null) => {
       if (mode === Mode.Viewing) {
-        const newRow: SmrRowType = generateNewUiRow();
+        const newRow: SmrRowAPIRequest = generateNewRow();
 
         const newData = [...data];
         const success = addRowToData(newData, id, newRow);
@@ -125,7 +125,7 @@ export default function Home() {
     try {
       const newData = deleteRowInData(data, id);
       setData(newData);
-      await deleteRow(id);
+      await deleteRowAPI(id);
     } catch {
       alert('Произошла ошибка! Изменения не сохранены');
       window.location.reload();

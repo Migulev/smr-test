@@ -1,4 +1,4 @@
-export async function getAllSmrRows() {
+export async function getAllSmrRowsAPI() {
   try {
     const data = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/v1/outlay-rows/entity/${process.env.NEXT_PUBLIC_API_eID}/row/list`
@@ -10,7 +10,7 @@ export async function getAllSmrRows() {
   }
 }
 
-export async function createRow({
+export async function createRowAPI({
   rowName,
   salary,
   equipmentCosts,
@@ -56,7 +56,7 @@ export async function createRow({
   }
 }
 
-export async function updateRow({
+export async function updateRowAPI({
   rowName,
   salary,
   equipmentCosts,
@@ -104,7 +104,7 @@ export async function updateRow({
   }
 }
 
-export async function deleteRow(rowID: string | number | null) {
+export async function deleteRowAPI(rowID: string | number | null) {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/v1/outlay-rows/entity/${process.env.NEXT_PUBLIC_API_eID}/row/${rowID}/delete`,

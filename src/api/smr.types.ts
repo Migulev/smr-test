@@ -1,5 +1,5 @@
-export type SmrRowType = {
-  child: SmrRowType[];
+export type SmrRowAPIRequest = {
+  child: SmrRowAPIRequest[];
   equipmentCosts: number;
   estimatedProfit: number;
   id: string | number | null;
