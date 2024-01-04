@@ -10,7 +10,6 @@ type Props = {
   hasChildren: boolean;
   onAdd: () => void;
   onDelete: () => void;
-  onClose: () => void;
 };
 
 function FolderCell(props: Props) {

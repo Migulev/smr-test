@@ -18,19 +18,18 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.scss';
 import { Mode } from './page.types';
 
-//TODO: folder
 //TODO: naming check and change
 //TODO: display EDIT FORM while no data
 //TODO: resolve Errors and reload page
 //TODO: if id === null it needs to await response with an id and then change it
 //TODO: optimistic request
+//TODO: types check
 //TODO: Vercel https error
 
 export default function Home() {
   const [data, setData] = useState<SmrRowType[]>([]);
   const [idInEdit, setIdInEdit] = useState<string | number | null>(null);
   const [mode, setMode] = useState<Mode>(Mode.Viewing);
-  const [foldersClosed, setFoldersClosed] = useState<any>({});
 
   // fetch data //
   useEffect(() => {
@@ -47,8 +46,8 @@ export default function Home() {
 
   //prepare data to display //
   const uiSmrRowList = useMemo(() => {
-    return flattenArrayAndPrepare(data, null, foldersClosed);
-  }, [data, foldersClosed]);
+    return flattenArrayAndPrepare(data, null);
+  }, [data]);
 
   //----------------//
   const handleEscape = useCallback(() => {
@@ -133,11 +132,6 @@ export default function Home() {
     }
   }
 
-  async function handleClose(id: any) {
-    const newState = foldersClosed[id] ? !foldersClosed[id] : true;
-    setFoldersClosed({ ...foldersClosed, [id]: newState });
-  }
-
   return (
     <main className={styles.home}>
       <div className={styles.header}>
@@ -163,7 +157,6 @@ export default function Home() {
                   edit={idInEdit === row.id}
                   onAdd={() => handleAddNewRowForm(row.id)}
                   onDelete={() => handleDeleteRow(row.id)}
-                  onClose={() => handleClose(row.id)}
                 />
               );
 

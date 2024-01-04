@@ -19,11 +19,7 @@ export function generateNewUiRow(): SmrRowType {
   };
 }
 
-export function flattenArrayAndPrepare(
-  objects: any,
-  parentId = null,
-  foldersClosed: any
-) {
+export function flattenArrayAndPrepare(objects: any, parentId = null) {
   let result: any[] = [];
 
   function recurse(
@@ -42,11 +38,10 @@ export function flattenArrayAndPrepare(
         parentId,
         level,
         states: newStates,
-        open: !foldersClosed[obj.id],
         hasChildren: obj.child.length > 0,
       });
 
-      if (!foldersClosed[obj.id] && Array.isArray(obj.child)) {
+      if (Array.isArray(obj.child)) {
         recurse(obj.child, obj.id, level + 1, newStates);
       }
     });
