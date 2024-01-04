@@ -1,5 +1,5 @@
 .home {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--topbar-height));
   width: 100%;
 
   background-color: var(--color-gray-200);
@@ -29,7 +29,6 @@
 
 .tableWrapper {
   width: 100%;
-  min-height: calc(100% - 44px);
   padding: 10px;
 }
 

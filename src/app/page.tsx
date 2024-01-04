@@ -23,7 +23,6 @@ import { Mode } from './page.types';
 //TODO: if id === null it needs to await response with an id and then change it
 //TODO: optimistic request
 //TODO: Vercel https error
-//TODO: screen size
 
 export default function Home() {
   const [data, setData] = useState<SmrRowType[]>([]);

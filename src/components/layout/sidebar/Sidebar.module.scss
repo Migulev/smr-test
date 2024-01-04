@@ -1,5 +1,5 @@
 .sidebar {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--topbar-height));
   width: 234px;
   background-color: var(--color-gray-100);
   color: var(--color-darkgray);
