@@ -18,11 +18,10 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.scss';
 import { Mode } from './page.types';
 
-//TODO: naming check and change
-//TODO: display EDIT FORM while no data
+//TODO: optimistic request
 //TODO: resolve Errors and reload page
 //TODO: if id === null it needs to await response with an id and then change it
-//TODO: optimistic request
+//TODO: display EDIT FORM while no data
 //TODO: types check
 //TODO: Vercel https error
 
@@ -120,7 +119,7 @@ export default function Home() {
     }
   }
 
-  //TODO:
+  //----------------//
   async function handleDeleteRow(id: any) {
     try {
       const newData = deleteRowInData(data, id);
@@ -151,12 +150,12 @@ export default function Home() {
           </thead>
           <tbody>
             {uiSmrRowList.map((row) => {
-              let folderView = (
+              let folderCellView = (
                 <FolderCell
-                  {...row}
                   edit={idInEdit === row.id}
                   onAdd={() => handleAddNewRowForm(row.id)}
                   onDelete={() => handleDeleteRow(row.id)}
+                  {...row}
                 />
               );
 
@@ -168,16 +167,16 @@ export default function Home() {
                   setIdInEdit={setIdInEdit}
                   data={data}
                   setData={setData}
-                  foldersView={folderView}
+                  folderCellView={folderCellView}
                   onCreated={(id: any) => {}}
                   {...row}
                 />
               ) : (
                 <DisplayTableRow
                   key={row.id ?? uuidv4()}
-                  foldersView={folderView}
-                  {...row}
+                  folderCellView={folderCellView}
                   onEdit={() => handleEditRowForm(row.id)}
+                  {...row}
                 />
               );
             })}

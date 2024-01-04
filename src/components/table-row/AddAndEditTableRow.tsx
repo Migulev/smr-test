@@ -1,6 +1,6 @@
+import { createRowAPI, updateRowAPI } from '@/api/smr';
+import { SmrRowAPIRequest } from '@/api/smr.types';
 import { Mode } from '@/app/page.types';
-import { createRow, updateRow } from '@/api/smr';
-import { SmrRowType } from '@/api/smr.types';
 import { updateRowInData } from '@/lib/utils';
 import { SmrRowSchema } from '@/lib/zod';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
@@ -8,7 +8,23 @@ import { z } from 'zod';
 
 type ValueType = z.infer<typeof SmrRowSchema>;
 
-type Props = {
+//****************//
+function AddAndEditTableRow({
+  id,
+  rowName,
+  salary,
+  equipmentCosts,
+  overheads,
+  estimatedProfit,
+  parentId,
+  data,
+  setData,
+  mode,
+  setMode,
+  setIdInEdit,
+  folderCellView,
+  onCreated,
+}: {
   id: number | string | null;
   rowName: string;
   salary: number;
@@ -16,24 +32,21 @@ type Props = {
   overheads: number;
   estimatedProfit: number;
   parentId: number | null;
-  data: SmrRowType[];
-  setData: Dispatch<SetStateAction<SmrRowType[]>>;
+  data: SmrRowAPIRequest[];
+  setData: (data: any) => void;
   mode: Mode;
   setMode: Dispatch<SetStateAction<Mode>>;
   setIdInEdit: Dispatch<SetStateAction<string | number | null>>;
-  foldersView: any;
-  onCreated: (id: any) => void; // `TODO: reload item state'
-};
-
-//****************//
-function AddAndEditTableRow(props: Props) {
+  folderCellView: any;
+  onCreated: (id: any) => void;
+}) {
   const refInput = useRef<HTMLInputElement>(null);
   const [rowValue, setRowValue] = useState<ValueType>({
-    rowName: props.rowName,
-    salary: props.salary,
-    equipmentCosts: props.equipmentCosts,
-    overheads: props.overheads,
-    estimatedProfit: props.estimatedProfit,
+    rowName,
+    salary,
+    equipmentCosts,
+    overheads,
+    estimatedProfit,
   });
 
   //----------------//
@@ -44,7 +57,7 @@ function AddAndEditTableRow(props: Props) {
   //----------------//
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Enter') {
-      if (props.mode === Mode.Editing || Mode.Adding) {
+      if (mode === Mode.Editing || Mode.Adding) {
         SubmitRow();
       }
     }
@@ -55,25 +68,25 @@ function AddAndEditTableRow(props: Props) {
     const validation = SmrRowSchema.safeParse(rowValue);
 
     if (validation.success) {
-      if (props.id) {
-        await updateRow({
+      if (id) {
+        await updateRowAPI({
           ...rowValue,
-          parentId: props.parentId,
-          rowID: props.id,
+          parentId: parentId,
+          rowID: id,
         });
       } else {
         try {
-          await createRow({ ...rowValue, parentId: props.parentId });
+          await createRowAPI({ ...rowValue, parentId: parentId });
         } catch {
           alert('Произошла ошибка! Изменения не сохранены');
           window.location.reload();
         }
       }
 
-      const newData = updateRowInData(props.data, props.id, { ...rowValue });
-      props.setData(newData);
-      props.setIdInEdit(null);
-      props.setMode(Mode.Viewing);
+      const newData = updateRowInData(data, id, { ...rowValue });
+      setData(newData);
+      setIdInEdit(null);
+      setMode(Mode.Viewing);
     } else {
       alert('форма не заполнена');
     }
@@ -81,7 +94,7 @@ function AddAndEditTableRow(props: Props) {
 
   return (
     <tr onKeyDown={handleKeyDown}>
-      <td>{props.foldersView}</td>
+      <td>{folderCellView}</td>
       <td>
         <input
           ref={refInput}
