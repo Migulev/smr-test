@@ -2,7 +2,7 @@ export type SmrRowAPIRequest = {
   child: SmrRowAPIRequest[];
   equipmentCosts: number;
   estimatedProfit: number;
-  id: string | number | null;
+  id: number | null;
   machineOperatorSalary: number;
   mainCosts: number;
   materials: number;

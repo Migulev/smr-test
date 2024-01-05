@@ -19,18 +19,27 @@ export function generateNewRow(): SmrRowAPIRequest {
   };
 }
 
-export function flattenArrayAndPrepare(objects: any, parentId = null) {
-  let result: any[] = [];
+type UiSmrRow = SmrRowAPIRequest & {
+  parentId: number | null;
+  level: number;
+  states: boolean[];
+  hasChildren: boolean;
+};
+
+export function flattenArrayAndPrepare(
+  objects: SmrRowAPIRequest[],
+  parentId: number | null = null
+): UiSmrRow[] {
+  let result: UiSmrRow[] = [];
 
   function recurse(
-    objectsArray: object[],
-    parentId: number | string | null,
+    objectsArray: SmrRowAPIRequest[],
+    parentId: number | null,
     level: number,
     states: boolean[]
   ) {
-    objectsArray.forEach((obj: any, index: number) => {
+    objectsArray.forEach((obj: SmrRowAPIRequest, index: number) => {
       const isNotLastElement = index < objectsArray.length - 1;
-
       let newStates = level === 1 ? [] : [...states, isNotLastElement];
 
       result.push({
@@ -38,7 +47,7 @@ export function flattenArrayAndPrepare(objects: any, parentId = null) {
         parentId,
         level,
         states: newStates,
-        hasChildren: obj.child.length > 0,
+        hasChildren: Array.isArray(obj.child) && obj.child.length > 0,
       });
 
       if (Array.isArray(obj.child)) {
@@ -48,7 +57,6 @@ export function flattenArrayAndPrepare(objects: any, parentId = null) {
   }
 
   recurse(objects, parentId, 1, []);
-
   return result;
 }
 
@@ -79,7 +87,7 @@ export function addRowToData(
 
 export const deleteRowInData = (
   data: SmrRowAPIRequest[],
-  id: string | number | null
+  id: number | null
 ): SmrRowAPIRequest[] => {
   return data.filter((obj) => {
     if (obj.id === id) {
@@ -97,14 +105,14 @@ export const deleteRowInData = (
 
 export const updateRowInData = (
   data: SmrRowAPIRequest[],
-  id: number | string | null,
+  id: number | null,
   updates: Partial<SmrRowAPIRequest>
 ): SmrRowAPIRequest[] => {
   // Use map to create a new array
   return data.map((obj) => {
     if (obj.id === id) {
       // Check if id is null and generate a new UUID if needed
-      const newId = id === null ? uuidv4() : id;
+      const newId = id === null ? new Date().valueOf() : id;
       // Create a new object by applying the updates with the newId or existing id
       return { ...obj, id: newId, ...updates };
     } else if (obj.child) {

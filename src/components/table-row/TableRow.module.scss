@@ -28,12 +28,13 @@
   border-radius: 6px;
 }
 
-.iconsContainer:hover {
+.hoverEffect:hover .iconsContainer {
   background-color: var(--icons-bg);
 }
 
-.iconsContainer:hover .icon:not(:first-child) {
+.hoverEffect:hover .icon:not(:first-child) {
   opacity: 1;
+  pointer-events: unset;
 }
 
 .icon {
@@ -42,6 +43,7 @@
 
 .icon:not(:first-child) {
   opacity: 0;
+  pointer-events: none;
 }
 
 .leftLine {

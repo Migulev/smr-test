@@ -18,16 +18,18 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.scss';
 import { Mode } from './page.types';
 
+//TODO: on hover
 //TODO: optimistic request
 //TODO: resolve Errors and reload page
 //TODO: if id === null it needs to await response with an id and then change it
 //TODO: display EDIT FORM while no data
-//TODO: types check
+//TODO: types check | dispatch, any
 //TODO: Vercel https error
+//TODO: console errors
 
 export default function Home() {
   const [data, setData] = useState<SmrRowAPIRequest[]>([]);
-  const [idInEdit, setIdInEdit] = useState<string | number | null>(null);
+  const [idInEditState, setIdInEditState] = useState<number | null>(null);
   const [mode, setMode] = useState<Mode>(Mode.Viewing);
 
   // fetch data //
@@ -52,21 +54,21 @@ export default function Home() {
   const handleEscape = useCallback(() => {
     switch (mode) {
       case Mode.Adding:
-        const newData = deleteRowInData(data, idInEdit);
+        const newData = deleteRowInData(data, idInEditState);
         setData(newData);
-        setIdInEdit(null);
+        setIdInEditState(null);
         setMode(Mode.Viewing);
         break;
 
       case Mode.Editing:
-        setIdInEdit(null);
+        setIdInEditState(null);
         setMode(Mode.Viewing);
         break;
 
       default:
         break;
     }
-  }, [data, idInEdit, mode]);
+  }, [data, idInEditState, mode]);
 
   //----------------//
   const handleAddNewRowForm = useCallback(
@@ -112,15 +114,15 @@ export default function Home() {
   }, [handleKeyDown]);
 
   //----------------//
-  function handleEditRowForm(id: string | number | null) {
+  function handleEditRowForm(id: number | null) {
     if (mode === Mode.Viewing) {
-      setIdInEdit(id);
+      setIdInEditState(id);
       setMode(Mode.Editing);
     }
   }
 
   //----------------//
-  async function handleDeleteRow(id: any) {
+  async function handleDeleteRow(id: number | null) {
     try {
       const newData = deleteRowInData(data, id);
       setData(newData);
@@ -130,6 +132,9 @@ export default function Home() {
       window.location.reload();
     }
   }
+
+  const isModeAddOrEdit = mode === Mode.Adding || Mode.Editing;
+  const isIconsHoverEffect = mode === Mode.Viewing;
 
   return (
     <main className={styles.home}>
@@ -152,31 +157,45 @@ export default function Home() {
             {uiSmrRowList.map((row) => {
               let folderCellView = (
                 <FolderCell
-                  edit={idInEdit === row.id}
+                  isHoverEffect={isIconsHoverEffect}
                   onAdd={() => handleAddNewRowForm(row.id)}
                   onDelete={() => handleDeleteRow(row.id)}
-                  {...row}
+                  //
+                  hasChildren={row.hasChildren}
+                  level={row.level}
+                  states={row.states}
                 />
               );
 
-              return idInEdit === row.id ? (
+              return idInEditState === row.id && isModeAddOrEdit ? (
                 <AddAndEditTableRow
                   key={uuidv4()}
-                  mode={mode}
+                  folderCellView={folderCellView}
                   setMode={setMode}
-                  setIdInEdit={setIdInEdit}
+                  setIdInEditState={setIdInEditState}
                   data={data}
                   setData={setData}
-                  folderCellView={folderCellView}
                   onCreated={(id: any) => {}}
-                  {...row}
+                  //
+                  id={row.id}
+                  equipmentCosts={row.equipmentCosts}
+                  estimatedProfit={row.estimatedProfit}
+                  overheads={row.overheads}
+                  parentId={row.parentId}
+                  rowName={row.rowName}
+                  salary={row.salary}
                 />
               ) : (
                 <DisplayTableRow
                   key={row.id ?? uuidv4()}
                   folderCellView={folderCellView}
                   onEdit={() => handleEditRowForm(row.id)}
-                  {...row}
+                  //
+                  rowName={row.rowName}
+                  equipmentCosts={row.equipmentCosts}
+                  estimatedProfit={row.estimatedProfit}
+                  overheads={row.overheads}
+                  salary={row.salary}
                 />
               );
             })}

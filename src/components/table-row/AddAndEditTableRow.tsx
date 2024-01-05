@@ -6,7 +6,7 @@ import { SmrRowSchema } from '@/lib/zod';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 
-type ValueType = z.infer<typeof SmrRowSchema>;
+type RowValueType = z.infer<typeof SmrRowSchema>;
 
 //****************//
 function AddAndEditTableRow({
@@ -19,13 +19,12 @@ function AddAndEditTableRow({
   parentId,
   data,
   setData,
-  mode,
   setMode,
-  setIdInEdit,
+  setIdInEditState,
   folderCellView,
   onCreated,
 }: {
-  id: number | string | null;
+  id: number | null;
   rowName: string;
   salary: number;
   equipmentCosts: number;
@@ -34,14 +33,14 @@ function AddAndEditTableRow({
   parentId: number | null;
   data: SmrRowAPIRequest[];
   setData: (data: any) => void;
-  mode: Mode;
   setMode: Dispatch<SetStateAction<Mode>>;
-  setIdInEdit: Dispatch<SetStateAction<string | number | null>>;
+  setIdInEditState: Dispatch<SetStateAction<number | null>>;
   folderCellView: any;
   onCreated: (id: any) => void;
 }) {
+  //----------------//
   const refInput = useRef<HTMLInputElement>(null);
-  const [rowValue, setRowValue] = useState<ValueType>({
+  const [rowValue, setRowValue] = useState<RowValueType>({
     rowName,
     salary,
     equipmentCosts,
@@ -57,9 +56,7 @@ function AddAndEditTableRow({
   //----------------//
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Enter') {
-      if (mode === Mode.Editing || Mode.Adding) {
-        SubmitRow();
-      }
+      SubmitRow();
     }
   }
 
@@ -85,7 +82,7 @@ function AddAndEditTableRow({
 
       const newData = updateRowInData(data, id, { ...rowValue });
       setData(newData);
-      setIdInEdit(null);
+      setIdInEditState(null);
       setMode(Mode.Viewing);
     } else {
       alert('форма не заполнена');
