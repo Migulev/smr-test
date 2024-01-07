@@ -1,5 +1,5 @@
 type Props = {
-  folderCellView: any;
+  folderCellView: JSX.Element;
   rowName: string;
   salary: number;
   equipmentCosts: number;
@@ -9,15 +9,23 @@ type Props = {
 };
 
 //****************//
-function DisplayTableRow(props: Props) {
+function DisplayTableRow({
+  onEdit,
+  folderCellView,
+  rowName,
+  salary,
+  equipmentCosts,
+  overheads,
+  estimatedProfit,
+}: Props) {
   return (
-    <tr onDoubleClick={() => props.onEdit()}>
-      <td>{props.folderCellView}</td>
-      <td>{props.rowName}</td>
-      <td>{props.salary}</td>
-      <td>{props.equipmentCosts}</td>
-      <td>{props.overheads}</td>
-      <td>{props.estimatedProfit}</td>
+    <tr onDoubleClick={() => onEdit()}>
+      <td>{folderCellView}</td>
+      <td>{rowName}</td>
+      <td>{salary}</td>
+      <td>{equipmentCosts}</td>
+      <td>{overheads}</td>
+      <td>{estimatedProfit}</td>
     </tr>
   );
 }

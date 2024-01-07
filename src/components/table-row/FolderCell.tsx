@@ -2,21 +2,23 @@ import { Icons } from '@/components/Icons';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './TableRow.module.scss';
 
+type Props = {
+  level: number;
+  states: boolean[];
+  hasChildren: boolean;
+  isHoverEffectOn: boolean;
+  onAdd: () => void;
+  onDelete: () => void;
+};
+
 function FolderCell({
   level,
   states,
   hasChildren,
   onAdd,
   onDelete,
-  isHoverEffect,
-}: {
-  level: number;
-  states: boolean[];
-  hasChildren: boolean;
-  isHoverEffect: boolean;
-  onAdd: () => void;
-  onDelete: () => void;
-}) {
+  isHoverEffectOn,
+}: Props) {
   const columns = [];
 
   for (let i = 0; i < level; i++) {
@@ -27,7 +29,7 @@ function FolderCell({
         <div
           key={uuidv4()}
           className={`${styles.folderColumn} ${
-            isHoverEffect && styles.hoverEffect
+            isHoverEffectOn && styles.hoverEffect
           }`}>
           <span className={`${styles.leftLine} ${grandParent && 'hidden'}`} />
           <span className={`${styles.downLine} ${hasChildren || 'hidden'}`} />

@@ -1,46 +1,32 @@
-import { createRowAPI, updateRowAPI } from '@/api/smr';
-import { SmrRowAPIRequest } from '@/api/smr.types';
-import { Mode } from '@/app/page.types';
-import { updateRowInData } from '@/lib/utils';
 import { SmrRowSchema } from '@/lib/zod';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 
-type RowValueType = z.infer<typeof SmrRowSchema>;
-
-//****************//
-function AddAndEditTableRow({
-  id,
-  rowName,
-  salary,
-  equipmentCosts,
-  overheads,
-  estimatedProfit,
-  parentId,
-  data,
-  setData,
-  setMode,
-  setIdInEditState,
-  folderCellView,
-  onCreated,
-}: {
-  id: number | null;
+type Props = {
   rowName: string;
   salary: number;
   equipmentCosts: number;
   overheads: number;
   estimatedProfit: number;
-  parentId: number | null;
-  data: SmrRowAPIRequest[];
-  setData: (data: any) => void;
-  setMode: Dispatch<SetStateAction<Mode>>;
-  setIdInEditState: Dispatch<SetStateAction<number | null>>;
-  folderCellView: any;
-  onCreated: (id: any) => void;
-}) {
+  folderCellView: JSX.Element;
+  onCreated: (data: RowValuesType) => void;
+};
+
+export type RowValuesType = z.infer<typeof SmrRowSchema>;
+
+//****************//
+function AddAndEditTableRow({
+  rowName,
+  salary,
+  equipmentCosts,
+  overheads,
+  estimatedProfit,
+  folderCellView,
+  onCreated,
+}: Props) {
   //----------------//
   const refInput = useRef<HTMLInputElement>(null);
-  const [rowValue, setRowValue] = useState<RowValueType>({
+  const [rowValues, setRowValues] = useState<RowValuesType>({
     rowName,
     salary,
     equipmentCosts,
@@ -62,28 +48,10 @@ function AddAndEditTableRow({
 
   //----------------//
   async function SubmitRow() {
-    const validation = SmrRowSchema.safeParse(rowValue);
+    const validation = SmrRowSchema.safeParse(rowValues);
 
     if (validation.success) {
-      if (id) {
-        await updateRowAPI({
-          ...rowValue,
-          parentId: parentId,
-          rowID: id,
-        });
-      } else {
-        try {
-          await createRowAPI({ ...rowValue, parentId: parentId });
-        } catch {
-          alert('Произошла ошибка! Изменения не сохранены');
-          window.location.reload();
-        }
-      }
-
-      const newData = updateRowInData(data, id, { ...rowValue });
-      setData(newData);
-      setIdInEditState(null);
-      setMode(Mode.Viewing);
+      onCreated({ ...rowValues });
     } else {
       alert('форма не заполнена');
     }
@@ -97,9 +65,9 @@ function AddAndEditTableRow({
           ref={refInput}
           type="text"
           name="наименование работ"
-          value={rowValue.rowName}
+          value={rowValues.rowName}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setRowValue((prev) => ({
+            setRowValues((prev) => ({
               ...prev,
               rowName: event.target.value,
             }))
@@ -111,9 +79,9 @@ function AddAndEditTableRow({
         <input
           type="text"
           name="основная з/п"
-          value={rowValue.salary}
+          value={rowValues.salary}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setRowValue((prev) => ({
+            setRowValues((prev) => ({
               ...prev,
               salary: +event.target.value || 0,
             }))
@@ -125,9 +93,9 @@ function AddAndEditTableRow({
         <input
           type="text"
           name="оборудование"
-          value={rowValue.equipmentCosts}
+          value={rowValues.equipmentCosts}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setRowValue((prev) => ({
+            setRowValues((prev) => ({
               ...prev,
               equipmentCosts: +event.target.value || 0,
             }))
@@ -139,9 +107,9 @@ function AddAndEditTableRow({
         <input
           type="text"
           name="накладные расходы"
-          value={rowValue.overheads}
+          value={rowValues.overheads}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setRowValue((prev) => ({
+            setRowValues((prev) => ({
               ...prev,
               overheads: +event.target.value || 0,
             }))
@@ -153,9 +121,9 @@ function AddAndEditTableRow({
         <input
           type="text"
           name="сметная прибыль"
-          value={rowValue.estimatedProfit}
+          value={rowValues.estimatedProfit}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setRowValue((prev) => ({
+            setRowValues((prev) => ({
               ...prev,
               estimatedProfit: +event.target.value || 0,
             }))

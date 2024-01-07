@@ -1,4 +1,6 @@
-export async function getAllSmrRowsAPI() {
+import { Id } from '@/app/page.types';
+
+export async function fetchAllRowsAPI() {
   try {
     const data = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/v1/outlay-rows/entity/${process.env.NEXT_PUBLIC_API_eID}/row/list`
@@ -23,7 +25,7 @@ export async function createRowAPI({
   equipmentCosts: number;
   overheads: number;
   estimatedProfit: number;
-  parentId: number | null;
+  parentId: Id;
 }) {
   try {
     const response = await fetch(
@@ -47,9 +49,12 @@ export async function createRowAPI({
       }
     );
 
+    const responseBody = await response.json();
+
     if (!response.ok) {
       throw new Error('Server responded with an error!');
     }
+    return responseBody;
   } catch (e) {
     console.log(e);
     throw new Error('Server responded with an error!');
@@ -63,19 +68,19 @@ export async function updateRowAPI({
   overheads,
   estimatedProfit,
   parentId,
-  rowID,
+  rowId,
 }: {
   rowName: string;
   salary: number;
   equipmentCosts: number;
   overheads: number;
   estimatedProfit: number;
-  parentId: number | null;
-  rowID: string | number;
+  parentId: Id;
+  rowId: number;
 }) {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/v1/outlay-rows/entity/${process.env.NEXT_PUBLIC_API_eID}/row/${rowID}/update`,
+      `${process.env.NEXT_PUBLIC_API_URL}/v1/outlay-rows/entity/${process.env.NEXT_PUBLIC_API_eID}/row/${rowId}/update`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

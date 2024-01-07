@@ -5,6 +5,7 @@ import styles from './layout.module.scss';
 import { Roboto } from 'next/font/google';
 import { Topbar } from '@/components/layout/topbar';
 import { Sidebar } from '@/components/layout/sidebar';
+import Providers from '@/providers/Providers';
 
 const roboto = Roboto({
   weight: ['400', '700'],
@@ -21,16 +22,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={roboto.className}>
-        <section className={styles.app}>
-          <Topbar />
-          <main className={styles.main}>
-            <Sidebar />
-            {children}
-          </main>
-        </section>
-      </body>
-    </html>
+    <Providers>
+      <html lang="en">
+        <body className={roboto.className}>
+          <section className={styles.app}>
+            <Topbar />
+            <main className={styles.main}>
+              <Sidebar />
+              {children}
+            </main>
+          </section>
+        </body>
+      </html>
+    </Providers>
   );
 }

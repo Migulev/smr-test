@@ -1,5 +1,5 @@
-import { SmrRowAPIRequest } from '@/api/smr.types';
-import { v4 as uuidv4 } from 'uuid';
+import { SmrRowAPIRequest } from '@/services/smr.types';
+import { Id } from '@/app/page.types';
 
 export function generateNewRow(): SmrRowAPIRequest {
   return {
@@ -19,7 +19,7 @@ export function generateNewRow(): SmrRowAPIRequest {
   };
 }
 
-type UiSmrRow = SmrRowAPIRequest & {
+export type UiSmrRow = SmrRowAPIRequest & {
   parentId: number | null;
   level: number;
   states: boolean[];
@@ -28,13 +28,13 @@ type UiSmrRow = SmrRowAPIRequest & {
 
 export function flattenArrayAndPrepare(
   objects: SmrRowAPIRequest[],
-  parentId: number | null = null
+  parentId: Id = null
 ): UiSmrRow[] {
   let result: UiSmrRow[] = [];
 
   function recurse(
     objectsArray: SmrRowAPIRequest[],
-    parentId: number | null,
+    parentId: Id,
     level: number,
     states: boolean[]
   ) {
@@ -62,7 +62,7 @@ export function flattenArrayAndPrepare(
 
 export function addRowToData(
   data: SmrRowAPIRequest[],
-  parentId: string | number | null,
+  parentId: Id,
   newRow: SmrRowAPIRequest
 ): boolean {
   if (parentId === null) {
@@ -73,28 +73,25 @@ export function addRowToData(
   for (const obj of data) {
     if (obj.id === parentId) {
       obj.child.push(newRow);
-      return true; // Parent found and child added
+      return true;
     }
 
-    // Recursively search in children
     if (addRowToData(obj.child, parentId, newRow)) {
-      return true; // Parent was found in children
+      return true;
     }
   }
 
-  return false; // Parent not found
+  return false;
 }
 
 export const deleteRowInData = (
   data: SmrRowAPIRequest[],
-  id: number | null
+  id: Id
 ): SmrRowAPIRequest[] => {
   return data.filter((obj) => {
     if (obj.id === id) {
-      return false; // Do not include this item in the new array
+      return false;
     }
-
-    // Recursively search in children if they exist
     if (obj.child && obj.child.length > 0) {
       obj.child = deleteRowInData(obj.child, id);
     }
@@ -105,21 +102,30 @@ export const deleteRowInData = (
 
 export const updateRowInData = (
   data: SmrRowAPIRequest[],
-  id: number | null,
+  id: Id,
   updates: Partial<SmrRowAPIRequest>
 ): SmrRowAPIRequest[] => {
-  // Use map to create a new array
   return data.map((obj) => {
-    if (obj.id === id) {
-      // Check if id is null and generate a new UUID if needed
-      const newId = id === null ? new Date().valueOf() : id;
-      // Create a new object by applying the updates with the newId or existing id
-      return { ...obj, id: newId, ...updates };
+    if (obj.id === id || obj.id === null) {
+      return { ...obj, id, ...updates };
     } else if (obj.child) {
-      // Recursively search and update in children and create a new object
       return { ...obj, child: updateRowInData(obj.child, id, updates) };
     }
-    // Return the object as is if no updates were made
+    return obj;
+  });
+};
+
+export const updateIdInData = (
+  data: SmrRowAPIRequest[],
+  id: Id,
+  newId: Id
+): SmrRowAPIRequest[] => {
+  return data.map((obj) => {
+    if (obj.id === id) {
+      return { ...obj, id: newId };
+    } else if (obj.child) {
+      return { ...obj, child: updateIdInData(obj.child, id, newId) };
+    }
     return obj;
   });
 };

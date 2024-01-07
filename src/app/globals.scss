@@ -54,18 +54,11 @@ svg {
   display: block;
 }
 
-.clickable {
-  cursor: pointer;
+.pending {
+  opacity: 20%;
+  pointer-events: none;
 }
 
 .hidden {
   opacity: 0;
-}
-
-.flex {
-  display: flex;
-}
-
-.align-center {
-  align-items: center;
 }
