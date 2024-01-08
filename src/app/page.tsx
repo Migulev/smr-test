@@ -6,36 +6,30 @@ import {
   FolderCell,
 } from '@/components/table-row';
 import { RowValuesType } from '@/components/table-row/AddAndEditTableRow';
+import useCreateRowMutation from '@/hooks/useCreateRowMutation';
 import useDeleteRowMutation from '@/hooks/useDeleteRowMutation';
+import useUpdateRowMutation from '@/hooks/useUpdateRowMutation';
 import {
   UiSmrRow,
   addRowToData,
   deleteRowInData,
   flattenArrayAndPrepare,
   generateNewRow,
-  updateIdInData,
-  updateRowInData,
 } from '@/lib/utils';
-import { createRowAPI, fetchAllRowsAPI, updateRowAPI } from '@/services/smr';
+import { fetchAllRowsAPI } from '@/services/smr';
 import { SmrRowAPIRequest } from '@/services/smr.types';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.scss';
 import { Id, Mode } from './page.types';
-import useCreateRowMutation from '@/hooks/useCreateRowMutation';
-import useUpdateRowMutation from '@/hooks/useUpdateRowMutation';
 
-//TODO: resolve Errors and reload page
-//TODO: if id === null it needs to await response with an id and then change it
 //TODO: display EDIT FORM while no data
-//TODO: types check | dispatch, any
 //TODO: Vercel https error
 //TODO: toaster for alerts (chakra)
-//TODO: hooks for TanStack
 
 export default function Home() {
-  const [data, setData] = useState<SmrRowAPIRequest[]>([]);
+  const [data, setData] = useState<SmrRowAPIRequest[] | null>(null);
   const [idInEditState, setIdInEditState] = useState<Id>(null);
   const [mode, setMode] = useState<Mode>(Mode.Viewing);
   const [idInMutation, setIdInMutation] = useState<Id>(null);
@@ -49,7 +43,10 @@ export default function Home() {
     queryKey: ['smr-rows'],
     queryFn: async () => {
       const dataAPI: SmrRowAPIRequest[] = await fetchAllRowsAPI();
-      setData(dataAPI);
+      if (dataAPI.length > 0) {
+        setData(dataAPI);
+      } else setData(null);
+
       return dataAPI;
     },
   });
@@ -57,22 +54,38 @@ export default function Home() {
   if (isError) alert('failed to fetch data');
 
   //prepare data to display //
-  const uiSmrRowList: UiSmrRow[] = useMemo(() => {
-    return flattenArrayAndPrepare(data, null);
+  const uiSmrRowList: UiSmrRow[] | null = useMemo(() => {
+    return data ? flattenArrayAndPrepare(data) : null;
   }, [data]);
+
+  // //add new Row Form when there is no data //
+  // useEffect(() => {
+  //   const addEmptyForm = () => {
+  //     const newRow: SmrRowAPIRequest = generateNewRow();
+  //     const newData = [...(data || [])];
+  //     addRowToData(newData, null, newRow);
+  //     setData(newData);
+  //     setMode(Mode.Adding);
+  //     console.log('1');
+  //   };
+
+  //   if (!data || data.length === 0) {
+  //     addEmptyForm();
+  //   }
+  // }, [data, mode]);
 
   //----------------//
   const handleAddNewRowForm = useCallback(
     (id: Id = null) => {
       if (mode === Mode.Viewing) {
         const newRow: SmrRowAPIRequest = generateNewRow();
-        const newData = [...data];
+        const newData = [...(data || [])];
         addRowToData(newData, id, newRow);
         setData(newData);
         setMode(Mode.Adding);
       }
     },
-    [mode, data]
+    [data, mode]
   );
 
   //----------------//
@@ -87,7 +100,7 @@ export default function Home() {
   const handleEscape = useCallback(() => {
     switch (mode) {
       case Mode.Adding:
-        const newData = deleteRowInData(data, idInEditState);
+        const newData = deleteRowInData(data || [], idInEditState);
         setData(newData);
         setIdInEditState(null);
         setMode(Mode.Viewing);
@@ -123,8 +136,9 @@ export default function Home() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  //----------------//
   const createRowMutation = useCreateRowMutation(
-    data,
+    data || [],
     idInEditState,
     idInMutation,
     setData,
@@ -134,14 +148,13 @@ export default function Home() {
   );
 
   const updateRowMutation = useUpdateRowMutation(
-    data,
+    data || [],
     setData,
     setMode,
     setIdInEditState,
     setIdInMutation
   );
 
-  //----------------//
   async function handleCreateOrUpdateRow(
     rowValues: RowValuesType,
     rowId: Id,
@@ -162,7 +175,7 @@ export default function Home() {
   }
 
   //----------------//
-  const deleteRowMutation = useDeleteRowMutation(data, setData, setMode);
+  const deleteRowMutation = useDeleteRowMutation(data || [], setData, setMode);
 
   async function handleDeleteRow(rowId: Id) {
     if (mode === Mode.Viewing) {
@@ -188,47 +201,48 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {uiSmrRowList.map((row) => {
-              let folderCellView = (
-                <FolderCell
-                  isHoverEffectOn={isIconsHoverEffectOn}
-                  onAdd={() => handleAddNewRowForm(row.id)}
-                  onDelete={() => handleDeleteRow(row.id)}
-                  //
-                  hasChildren={row.hasChildren}
-                  level={row.level}
-                  states={row.states}
-                />
-              );
+            {uiSmrRowList &&
+              uiSmrRowList.map((row) => {
+                let folderCellView = (
+                  <FolderCell
+                    isHoverEffectOn={isIconsHoverEffectOn}
+                    onAdd={() => handleAddNewRowForm(row.id)}
+                    onDelete={() => handleDeleteRow(row.id)}
+                    //
+                    hasChildren={row.hasChildren}
+                    level={row.level}
+                    states={row.states}
+                  />
+                );
 
-              return idInEditState === row.id && isModeAddOrEdit ? (
-                <AddAndEditTableRow
-                  key={uuidv4()}
-                  onCreated={(rowValues: RowValuesType) =>
-                    handleCreateOrUpdateRow(rowValues, row.id, row.parentId)
-                  }
-                  //
-                  folderCellView={folderCellView}
-                  equipmentCosts={row.equipmentCosts}
-                  estimatedProfit={row.estimatedProfit}
-                  overheads={row.overheads}
-                  rowName={row.rowName}
-                  salary={row.salary}
-                />
-              ) : (
-                <DisplayTableRow
-                  key={row.id ?? uuidv4()}
-                  onEdit={() => handleEditRowForm(row.id)}
-                  //
-                  folderCellView={folderCellView}
-                  rowName={row.rowName}
-                  equipmentCosts={row.equipmentCosts}
-                  estimatedProfit={row.estimatedProfit}
-                  overheads={row.overheads}
-                  salary={row.salary}
-                />
-              );
-            })}
+                return idInEditState === row.id && isModeAddOrEdit ? (
+                  <AddAndEditTableRow
+                    key={uuidv4()}
+                    onCreated={(rowValues: RowValuesType) =>
+                      handleCreateOrUpdateRow(rowValues, row.id, row.parentId)
+                    }
+                    //
+                    folderCellView={folderCellView}
+                    equipmentCosts={row.equipmentCosts}
+                    estimatedProfit={row.estimatedProfit}
+                    overheads={row.overheads}
+                    rowName={row.rowName}
+                    salary={row.salary}
+                  />
+                ) : (
+                  <DisplayTableRow
+                    key={row.id ?? uuidv4()}
+                    onEdit={() => handleEditRowForm(row.id)}
+                    //
+                    folderCellView={folderCellView}
+                    rowName={row.rowName}
+                    equipmentCosts={row.equipmentCosts}
+                    estimatedProfit={row.estimatedProfit}
+                    overheads={row.overheads}
+                    salary={row.salary}
+                  />
+                );
+              })}
           </tbody>
         </table>
       </div>

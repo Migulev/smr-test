@@ -27,8 +27,7 @@ export type UiSmrRow = SmrRowAPIRequest & {
 };
 
 export function flattenArrayAndPrepare(
-  objects: SmrRowAPIRequest[],
-  parentId: Id = null
+  objects: SmrRowAPIRequest[]
 ): UiSmrRow[] {
   let result: UiSmrRow[] = [];
 
@@ -56,7 +55,7 @@ export function flattenArrayAndPrepare(
     });
   }
 
-  recurse(objects, parentId, 1, []);
+  recurse(objects, null, 1, []);
   return result;
 }
 

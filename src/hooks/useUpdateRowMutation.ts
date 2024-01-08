@@ -7,7 +7,7 @@ import { Dispatch, SetStateAction } from 'react';
 
 const useUpdateRowMutation = (
   data: SmrRowAPIRequest[],
-  setData: Dispatch<SetStateAction<SmrRowAPIRequest[]>>,
+  setData: Dispatch<SetStateAction<SmrRowAPIRequest[] | null>>,
   setMode: Dispatch<SetStateAction<Mode>>,
   setIdInEditState: Dispatch<SetStateAction<Id>>,
   setIdInMutation: Dispatch<SetStateAction<Id>>

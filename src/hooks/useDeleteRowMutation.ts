@@ -7,7 +7,7 @@ import { Dispatch, SetStateAction } from 'react';
 
 const useDeleteRowMutation = (
   data: SmrRowAPIRequest[],
-  setData: Dispatch<SetStateAction<SmrRowAPIRequest[]>>,
+  setData: Dispatch<SetStateAction<SmrRowAPIRequest[] | null>>,
   setMode: Dispatch<SetStateAction<Mode>>
 ) => {
   return useMutation({
